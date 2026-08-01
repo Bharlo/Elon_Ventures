@@ -4,6 +4,6 @@
 .language-picker small{display:block;margin-top:8px;color:var(--muted);font-size:9px;line-height:1.45}
 html[dir='rtl'] .side{right:0;left:auto;border-right:0;border-left:1px solid var(--line)}
 html[dir='rtl'] main{margin-right:260px;margin-left:0}
-@media(max-width:950px){.language-picker{display:none}html[dir='rtl'] main{margin-right:0}}
+@media(max-width:950px){.language-picker{display:block;left:16px;top:auto;bottom:16px;width:196px;z-index:50}.language-picker small{display:none}html[dir='rtl'] main{margin-right:0}html[dir='rtl'] .language-picker{right:16px;left:auto}}
 #google_translate_element,.goog-te-banner-frame,.goog-te-banner-frame.skiptranslate,body>.skiptranslate,.goog-logo-link,.goog-te-gadget span{display:none!important;visibility:hidden!important;height:0!important}
 html,body{top:0!important;margin-top:0!important}.goog-te-gadget{font-size:0!important;color:transparent!important}
