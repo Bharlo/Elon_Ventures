@@ -9,7 +9,7 @@ import './languages.css'
 const glyph = symbol => function Glyph() { return <span className="icon" aria-hidden="true">{symbol}</span> }
 const Add = glyph('+'), ArrowForward = glyph('→'), Bolt = glyph('ϟ'), BookmarkBorder = glyph('♡')
 const Brightness4 = glyph('◐'), Brightness7 = glyph('☼'), Check = glyph('✓'), Close = glyph('×')
-const Menu = glyph('☰'), Search = glyph('⌕'), ShoppingBag = glyph('▢'), Star = glyph('★')
+const Menu = glyph('☰'), Search = glyph('⌕'), ShoppingBag = glyph('🛒'), Star = glyph('★')
 const AccountCircle = glyph('◉'), Settings = glyph('⚙'), Logout = glyph('↪'), KeyboardArrowUp = glyph('↑')
 const RocketLaunch = glyph('↗'), Language = glyph('◎')
 
