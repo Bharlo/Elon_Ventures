@@ -3,6 +3,14 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
+// GitHub Pages serves its 404 page for a refreshed client-side route. Restore
+// the requested route before React mounts so the app can render it normally.
+const redirectedPath = sessionStorage.getItem('spa-redirect')
+if (redirectedPath) {
+  sessionStorage.removeItem('spa-redirect')
+  window.history.replaceState(null, '', redirectedPath)
+}
+
 class AppErrorBoundary extends Component {
   state = { failed: false }
 
