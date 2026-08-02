@@ -92,8 +92,9 @@ const investmentPlans = Array.from({ length: 30 }, (_, index) => {
   return { name:`Future Plan ${String(index + 1).padStart(2,'0')}`, contribution, potential, duration, risk }
 })
 
-function App(){ const [dark,setDark]=useState(localStorage.getItem('orbital-theme') !== 'light'); const [cart,setCart]=useState([]); const [drawer,setDrawer]=useState(false); const [collapsed,setCollapsed]=useState(false); const [language,setLanguage]=useState(localStorage.getItem('elon-language') || 'en')
+function App(){ const [dark,setDark]=useState(localStorage.getItem('orbital-theme') !== 'light'); const [cart,setCart]=useState(()=>{try{const savedCart=JSON.parse(localStorage.getItem('elon-cart')||'[]');return Array.isArray(savedCart)?savedCart:[]}catch{return[]}}); const [drawer,setDrawer]=useState(false); const [collapsed,setCollapsed]=useState(false); const [language,setLanguage]=useState(localStorage.getItem('elon-language') || 'en')
  useEffect(()=>{document.documentElement.dataset.theme=dark?'dark':'light';localStorage.setItem('orbital-theme',dark?'dark':'light')},[dark])
+ useEffect(()=>{localStorage.setItem('elon-cart',JSON.stringify(cart))},[cart])
  useEffect(()=>{document.documentElement.lang=language;document.documentElement.dir=language==='ar'?'rtl':'ltr';localStorage.setItem('elon-language',language)},[language])
  return <><GoogleTranslate/><Shell dark={dark} setDark={setDark} cart={cart} setCart={setCart} drawer={drawer} setDrawer={setDrawer} collapsed={collapsed} setCollapsed={setCollapsed}/><LanguagePicker language={language} setLanguage={setLanguage}/><LiveActivity/></> }
 
