@@ -1,7 +1,5 @@
 import { useState } from 'react'
 
-const supportNumber = '14356122257'
-
 export default function InvestmentInquiry() {
   const [step, setStep] = useState(1)
   const [details, setDetails] = useState({ name: '', email: '', phone: '', address: '' })
@@ -9,7 +7,7 @@ export default function InvestmentInquiry() {
   const canContinue = Object.values(details).every(Boolean)
   const chat = () => {
     const message = `Hello, I would like to discuss an investment enquiry.\n\nName: ${details.name}\nEmail: ${details.email}\nPhone: ${details.phone}\n\nI understand this chat is for information and support only. No payment is being requested.`
-    window.location.assign(`https://wa.me/${supportNumber}?text=${encodeURIComponent(message)}`)
+    window.dispatchEvent(new CustomEvent('open-support', { detail: message }))
   }
 
   return <section className="section checkout">
