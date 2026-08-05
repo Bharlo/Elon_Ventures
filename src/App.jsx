@@ -36,7 +36,7 @@ const companies = [
   { name: 'The Boring Company', path: 'boring', tag: 'Solve traffic', image: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=85', mark: 'B', color: '#ff8f42' },
 ]
 
-const nav = [{label:'Home',to:'/'},{label:'Shop',to:'/shop'},{label:'Donations',to:'/donations'},{label:'Investments',to:'/investments'}, ...companies.map(c=>({label:c.name,to:`/company/${c.path}`}))]
+const nav = [{label:'Home',to:'/'},{label:'Shop',to:'/shop'},{label:'Donations',to:'/donations'},{label:'Investments',to:'/investments'},{label:'Admin Support',to:'/admin-support'}, ...companies.map(c=>({label:c.name,to:`/company/${c.path}`}))]
 const languages = [
   ['en','English','Browse the website in English.'],['fr','Français','Utilisez le site en français.'],['es','Español','Navega por el sitio en español.'],['ko','한국어','한국어로 웹사이트를 이용하세요.'],['ja','日本語','日本語でウェブサイトをご利用ください。'],['tr','Türkçe','Siteyi Türkçe olarak kullanın.'],['pt','Português','Navegue pelo site em português.'],['ru','Русский','Используйте сайт на русском языке.'],['de','Deutsch','Nutzen Sie die Website auf Deutsch.'],['it','Italiano','Usa il sito in italiano.'],['zh','简体中文','使用简体中文浏览网站。'],['ar','العربية','استخدم الموقع باللغة العربية.'],['hi','हिंदी','वेबसाइट हिंदी में उपयोग करें।'],['id','Bahasa Indonesia','Gunakan situs dalam Bahasa Indonesia.'],['th','ภาษาไทย','ใช้งานเว็บไซต์เป็นภาษาไทย'],['vi','Tiếng Việt','Sử dụng trang web bằng tiếng Việt.'],
 ]
