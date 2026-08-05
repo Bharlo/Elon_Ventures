@@ -6,7 +6,7 @@ export default function InvestmentInquiry() {
   const update = (field, value) => setDetails(current => ({ ...current, [field]: value }))
   const canContinue = Object.values(details).every(Boolean)
   const chat = () => {
-    const message = `Hello, I would like to discuss an investment enquiry.\n\nName: ${details.name}\nEmail: ${details.email}\nPhone: ${details.phone}\n\nI understand this chat is for information and support only. No payment is being requested.`
+    const message = `Hello, I would like to discuss an investment enquiry.\n\nName: ${details.name}\nEmail: ${details.email}\nPhone: ${details.phone}`
     window.dispatchEvent(new CustomEvent('open-support', { detail: message }))
   }
 
