@@ -39,3 +39,4 @@ html[data-theme='light']{--bg:#f4f6f3;--panel:#ffffff;--text:#0c1420;--muted:#66
 .support-centre header b{font-size:0}
 .support-centre header b:after{content:'Elon Musk Support';font-size:13px}
 .enable-alert-sound{align-self:flex-start;border:1px solid var(--accent);border-radius:999px;background:var(--accent);color:#152000;padding:6px 9px;font:800 9px 'DM Mono',monospace;letter-spacing:.2px;cursor:pointer}.live-activity>i{white-space:nowrap}
+.typing-indicator{align-self:flex-start;color:var(--muted);font-size:11px;font-style:italic;padding:6px 10px;animation:activity-in .2s ease both}.typing-indicator span{display:inline-block;font-size:7px;letter-spacing:2px;color:var(--accent);animation:typing-pulse 1s ease-in-out infinite}@keyframes typing-pulse{50%{opacity:.3;transform:translateY(1px)}}

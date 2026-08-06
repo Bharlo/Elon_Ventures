@@ -17,6 +17,14 @@ create table if not exists public.support_messages (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.support_typing_status (
+  conversation_id uuid not null references public.support_conversations(id) on delete cascade,
+  sender_role text not null check (sender_role in ('visitor', 'admin')),
+  is_typing boolean not null default false,
+  updated_at timestamptz not null default now(),
+  primary key (conversation_id, sender_role)
+);
+
 create table if not exists public.support_admins (
   user_id uuid primary key references auth.users(id) on delete cascade
 );
@@ -34,6 +42,7 @@ create trigger support_message_activity after insert on public.support_messages 
 
 alter table public.support_conversations enable row level security;
 alter table public.support_messages enable row level security;
+alter table public.support_typing_status enable row level security;
 alter table public.support_admins enable row level security;
 
 create policy "Visitors read their conversation" on public.support_conversations for select to authenticated using ((select auth.uid()) = owner_id or (select public.is_support_admin()));
@@ -41,6 +50,9 @@ create policy "Visitors create their conversation" on public.support_conversatio
 create policy "Support reads messages" on public.support_messages for select to authenticated using ((select public.is_support_admin()) or exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
 create policy "Visitors send their messages" on public.support_messages for insert to authenticated with check (sender_role = 'visitor' and sender_id = (select auth.uid()) and exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
 create policy "Admins send replies" on public.support_messages for insert to authenticated with check (sender_role = 'admin' and sender_id = (select auth.uid()) and (select public.is_support_admin()));
+create policy "Support reads typing status" on public.support_typing_status for select to authenticated using ((select public.is_support_admin()) or exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
+create policy "Visitors update typing status" on public.support_typing_status for all to authenticated using (sender_role = 'visitor' and exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid())) with check (sender_role = 'visitor' and exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
+create policy "Admins update typing status" on public.support_typing_status for all to authenticated using (sender_role = 'admin' and (select public.is_support_admin())) with check (sender_role = 'admin' and (select public.is_support_admin()));
 
 create index if not exists support_conversations_owner_idx on public.support_conversations(owner_id);
 create index if not exists support_messages_conversation_idx on public.support_messages(conversation_id, created_at);

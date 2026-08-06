@@ -65,5 +65,9 @@ export async function messagesFor(session, conversationId) { return call(`/rest/
 export async function sendMessage(session, conversationId, body, senderRole = 'visitor') {
   return call('/rest/v1/support_messages', session, { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ conversation_id: conversationId, sender_id: session.user.id, sender_role: senderRole, body }) })
 }
+export async function setTyping(session, conversationId, senderRole, isTyping) {
+  return call('/rest/v1/support_typing_status?on_conflict=conversation_id,sender_role', session, { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify({ conversation_id: conversationId, sender_role: senderRole, is_typing: isTyping, updated_at: new Date().toISOString() }) })
+}
+export async function typingFor(session, conversationId) { return call(`/rest/v1/support_typing_status?conversation_id=eq.${conversationId}&select=sender_role,is_typing,updated_at`, session) }
 export async function conversationsForAdmin(session) { return call('/rest/v1/support_conversations?select=*&order=updated_at.desc', session) }
 export { configured }
