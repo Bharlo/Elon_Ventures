@@ -45,6 +45,15 @@ alter table public.support_messages enable row level security;
 alter table public.support_typing_status enable row level security;
 alter table public.support_admins enable row level security;
 
+drop policy if exists "Visitors read their conversation" on public.support_conversations;
+drop policy if exists "Visitors create their conversation" on public.support_conversations;
+drop policy if exists "Support reads messages" on public.support_messages;
+drop policy if exists "Visitors send their messages" on public.support_messages;
+drop policy if exists "Admins send replies" on public.support_messages;
+drop policy if exists "Support reads typing status" on public.support_typing_status;
+drop policy if exists "Visitors update typing status" on public.support_typing_status;
+drop policy if exists "Admins update typing status" on public.support_typing_status;
+
 create policy "Visitors read their conversation" on public.support_conversations for select to authenticated using ((select auth.uid()) = owner_id or (select public.is_support_admin()));
 create policy "Visitors create their conversation" on public.support_conversations for insert to authenticated with check ((select auth.uid()) = owner_id);
 create policy "Support reads messages" on public.support_messages for select to authenticated using ((select public.is_support_admin()) or exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
