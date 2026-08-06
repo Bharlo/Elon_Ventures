@@ -77,6 +77,8 @@ export async function uploadSupportImage(session, conversationId, file) {
   return { path, url: `${baseUrl}/storage/v1/object/public/support-uploads/${path}`, kind: file.type.startsWith('audio/') ? 'audio' : 'image' }
 }
 export async function deleteMessage(session, messageId) { return call(`/rest/v1/support_messages?id=eq.${messageId}`, session, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }) }
+export async function deleteConversation(session, conversationId) { return call(`/rest/v1/support_conversations?id=eq.${conversationId}`, session, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }) }
+export async function markConversationRead(session, conversationId) { return call(`/rest/v1/support_conversations?id=eq.${conversationId}`, session, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ unread_count: 0 }) }) }
 export async function setConversationBlocked(session, conversationId, isBlocked) { return call(`/rest/v1/support_conversations?id=eq.${conversationId}`, session, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ is_blocked: isBlocked }) }) }
 export async function setTyping(session, conversationId, senderRole, isTyping) {
   return call('/rest/v1/support_typing_status?on_conflict=conversation_id,sender_role', session, { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify({ conversation_id: conversationId, sender_role: senderRole, is_typing: isTyping, updated_at: new Date().toISOString() }) })

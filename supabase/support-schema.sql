@@ -60,6 +60,7 @@ drop policy if exists "Visitors send their messages" on public.support_messages;
 drop policy if exists "Admins send replies" on public.support_messages;
 drop policy if exists "Admins delete messages" on public.support_messages;
 drop policy if exists "Admins update conversations" on public.support_conversations;
+drop policy if exists "Admins delete conversations" on public.support_conversations;
 drop policy if exists "Support reads typing status" on public.support_typing_status;
 drop policy if exists "Visitors update typing status" on public.support_typing_status;
 drop policy if exists "Admins update typing status" on public.support_typing_status;
@@ -71,6 +72,7 @@ create policy "Visitors send their messages" on public.support_messages for inse
 create policy "Admins send replies" on public.support_messages for insert to authenticated with check (sender_role = 'admin' and sender_id = (select auth.uid()) and (select public.is_support_admin()));
 create policy "Admins delete messages" on public.support_messages for delete to authenticated using ((select public.is_support_admin()));
 create policy "Admins update conversations" on public.support_conversations for update to authenticated using ((select public.is_support_admin())) with check ((select public.is_support_admin()));
+create policy "Admins delete conversations" on public.support_conversations for delete to authenticated using ((select public.is_support_admin()));
 create policy "Support reads typing status" on public.support_typing_status for select to authenticated using ((select public.is_support_admin()) or exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
 create policy "Visitors update typing status" on public.support_typing_status for all to authenticated using (sender_role = 'visitor' and exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid())) with check (sender_role = 'visitor' and exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
 create policy "Admins update typing status" on public.support_typing_status for all to authenticated using (sender_role = 'admin' and (select public.is_support_admin())) with check (sender_role = 'admin' and (select public.is_support_admin()));
