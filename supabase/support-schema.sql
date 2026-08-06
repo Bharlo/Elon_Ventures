@@ -20,8 +20,10 @@ create table if not exists public.support_messages (
 );
 alter table public.support_messages add column if not exists image_url text;
 alter table public.support_messages add column if not exists image_path text;
+alter table public.support_messages add column if not exists audio_url text;
+alter table public.support_messages add column if not exists audio_path text;
 alter table public.support_messages drop constraint if exists support_messages_body_check;
-alter table public.support_messages add constraint support_messages_body_check check ((char_length(body) between 1 and 4000) or image_url is not null);
+alter table public.support_messages add constraint support_messages_body_check check ((char_length(body) between 1 and 4000) or image_url is not null or audio_url is not null);
 
 create table if not exists public.support_typing_status (
   conversation_id uuid not null references public.support_conversations(id) on delete cascade,
