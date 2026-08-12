@@ -63,18 +63,17 @@ export async function currentConversation(session, visitorName = 'Website visito
 
 export async function messagesFor(session, conversationId) { return call(`/rest/v1/support_messages?conversation_id=eq.${conversationId}&order=created_at.asc`, session) }
 export async function sendMessage(session, conversationId, body, senderRole = 'visitor', attachment = null) {
-  const isAudio = attachment?.kind === 'audio'
-  return call('/rest/v1/support_messages', session, { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ conversation_id: conversationId, sender_id: session.user.id, sender_role: senderRole, body, image_url: isAudio ? null : attachment?.url || null, image_path: isAudio ? null : attachment?.path || null, audio_url: isAudio ? attachment.url : null, audio_path: isAudio ? attachment.path : null }) })
+  return call('/rest/v1/support_messages', session, { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ conversation_id: conversationId, sender_id: session.user.id, sender_role: senderRole, body, image_url: attachment?.url || null, image_path: attachment?.path || null }) })
 }
 export async function uploadSupportImage(session, conversationId, file) {
   if (!configured()) throw new Error('Support is not configured yet.')
-  if (!file?.type.startsWith('image/') && !file?.type.startsWith('audio/')) throw new Error('Please choose an image or audio file.')
+  if (!file?.type.startsWith('image/')) throw new Error('Please choose an image file.')
   if (file.size > 12 * 1024 * 1024) throw new Error('Please choose a file smaller than 12 MB.')
   const extension = file.name.split('.').pop()?.replace(/[^a-z0-9]/gi, '') || 'jpg'
   const path = `${conversationId}/${crypto.randomUUID()}.${extension}`
   const response = await fetch(`${baseUrl}/storage/v1/object/support-uploads/${path}`, { method: 'POST', headers: { apikey: publicKey, Authorization: `Bearer ${session.access_token}`, 'Content-Type': file.type, 'x-upsert': 'false' }, body: file })
   if (!response.ok) throw new Error('Image upload failed. Please try again.')
-  return { path, url: `${baseUrl}/storage/v1/object/public/support-uploads/${path}`, kind: file.type.startsWith('audio/') ? 'audio' : 'image' }
+  return { path, url: `${baseUrl}/storage/v1/object/public/support-uploads/${path}` }
 }
 export async function deleteMessage(session, messageId) { return call(`/rest/v1/support_messages?id=eq.${messageId}`, session, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }) }
 export async function deleteConversation(session, conversationId) { return call(`/rest/v1/support_conversations?id=eq.${conversationId}`, session, { method: 'DELETE', headers: { Prefer: 'return=minimal' } }) }
