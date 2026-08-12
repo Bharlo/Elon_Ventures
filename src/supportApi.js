@@ -76,8 +76,11 @@ export async function enableAdminPush(session) {
   if (permission !== 'granted') throw new Error('Notifications are blocked. Allow notifications for this site in your browser settings.')
   const config = await supportFunction('support-push-config', session)
   if (!config?.publicKey) throw new Error('Push notifications are not configured on the server yet.')
-  const registration = await navigator.serviceWorker.register('/support-push-worker.js', { scope: '/' })
-  const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64UrlToUint8Array(config.publicKey) })
+  await navigator.serviceWorker.register('/support-push-worker.js', { scope: '/' })
+  const registration = await navigator.serviceWorker.ready
+  if (!registration.active) throw new Error('Notification setup is still starting. Please tap Enable lock-screen alerts once more.')
+  const existing = await registration.pushManager.getSubscription()
+  const subscription = existing || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64UrlToUint8Array(config.publicKey) })
   await supportFunction('support-push-subscribe', session, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: subscription.toJSON() }) })
   await registration.showNotification('Chat Support notifications are on', { body: 'You will receive a lock-screen alert for new visitor messages.', tag: 'support-notifications-enabled' })
 }
