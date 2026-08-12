@@ -63,8 +63,25 @@ export async function currentConversation(session, visitorName = 'Website visito
 
 export async function messagesFor(session, conversationId) { return call(`/rest/v1/support_messages?conversation_id=eq.${conversationId}&order=created_at.asc`, session) }
 export async function sendMessage(session, conversationId, body, senderRole = 'visitor', attachment = null) {
-  return call('/rest/v1/support_messages', session, { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ conversation_id: conversationId, sender_id: session.user.id, sender_role: senderRole, body, image_url: attachment?.url || null, image_path: attachment?.path || null }) })
+  const created = await call('/rest/v1/support_messages', session, { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify({ conversation_id: conversationId, sender_id: session.user.id, sender_role: senderRole, body, image_url: attachment?.url || null, image_path: attachment?.path || null }) })
+  if (senderRole === 'visitor' && created[0]?.id) void requestVisitorPush(session, conversationId, created[0].id)
+  return created
 }
+
+function base64UrlToUint8Array(value) { const padding = '='.repeat((4 - value.length % 4) % 4); const binary = atob((value + padding).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(binary, character => character.charCodeAt(0)) }
+async function supportFunction(name, session, options = {}) { return call(`/functions/v1/${name}`, session, options) }
+export async function enableAdminPush(session) {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) throw new Error('This browser does not support background notifications. Open the admin page in Chrome, or install it to your iPhone Home Screen and open the installed app.')
+  const permission = Notification.permission === 'default' ? await Notification.requestPermission() : Notification.permission
+  if (permission !== 'granted') throw new Error('Notifications are blocked. Allow notifications for this site in your browser settings.')
+  const config = await supportFunction('support-push-config', session)
+  if (!config?.publicKey) throw new Error('Push notifications are not configured on the server yet.')
+  const registration = await navigator.serviceWorker.register('/support-push-worker.js', { scope: '/' })
+  const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64UrlToUint8Array(config.publicKey) })
+  await supportFunction('support-push-subscribe', session, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: subscription.toJSON() }) })
+  await registration.showNotification('Chat Support notifications are on', { body: 'You will receive a lock-screen alert for new visitor messages.', tag: 'support-notifications-enabled' })
+}
+async function requestVisitorPush(session, conversationId, messageId) { try { await supportFunction('support-push-notify', session, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ conversationId, messageId }) }) } catch { /* Chat delivery should not fail when push delivery is unavailable. */ } }
 export async function uploadSupportImage(session, conversationId, file) {
   if (!configured()) throw new Error('Support is not configured yet.')
   if (!file?.type.startsWith('image/')) throw new Error('Please choose an image file.')

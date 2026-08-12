@@ -37,6 +37,15 @@ create table if not exists public.support_admins (
   user_id uuid primary key references auth.users(id) on delete cascade
 );
 
+create table if not exists public.support_push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  admin_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,
+  subscription jsonb not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create or replace function public.is_support_admin()
 returns boolean language sql stable security definer set search_path = public
 as $$ select exists (select 1 from public.support_admins where user_id = auth.uid()) $$;
@@ -52,6 +61,7 @@ alter table public.support_conversations enable row level security;
 alter table public.support_messages enable row level security;
 alter table public.support_typing_status enable row level security;
 alter table public.support_admins enable row level security;
+alter table public.support_push_subscriptions enable row level security;
 
 drop policy if exists "Visitors read their conversation" on public.support_conversations;
 drop policy if exists "Visitors create their conversation" on public.support_conversations;
@@ -76,6 +86,8 @@ create policy "Admins delete conversations" on public.support_conversations for 
 create policy "Support reads typing status" on public.support_typing_status for select to authenticated using ((select public.is_support_admin()) or exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
 create policy "Visitors update typing status" on public.support_typing_status for all to authenticated using (sender_role = 'visitor' and exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid())) with check (sender_role = 'visitor' and exists (select 1 from public.support_conversations c where c.id = conversation_id and c.owner_id = auth.uid()));
 create policy "Admins update typing status" on public.support_typing_status for all to authenticated using (sender_role = 'admin' and (select public.is_support_admin())) with check (sender_role = 'admin' and (select public.is_support_admin()));
+drop policy if exists "Admins manage their push subscriptions" on public.support_push_subscriptions;
+create policy "Admins manage their push subscriptions" on public.support_push_subscriptions for all to authenticated using (admin_id = (select auth.uid()) and (select public.is_support_admin())) with check (admin_id = (select auth.uid()) and (select public.is_support_admin()));
 
 insert into storage.buckets (id, name, public) values ('support-uploads', 'support-uploads', true) on conflict (id) do update set public = true;
 drop policy if exists "Support users upload chat images" on storage.objects;
@@ -85,6 +97,7 @@ create policy "Support users view chat images" on storage.objects for select to 
 
 create index if not exists support_conversations_owner_idx on public.support_conversations(owner_id);
 create index if not exists support_messages_conversation_idx on public.support_messages(conversation_id, created_at);
+create index if not exists support_push_subscriptions_admin_idx on public.support_push_subscriptions(admin_id);
 
 -- After creating the admin in Authentication > Users, run this with their UUID:
 -- insert into public.support_admins (user_id) values ('ADMIN-USER-UUID-HERE');

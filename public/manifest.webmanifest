@@ -1,0 +1,9 @@
+{
+  "name": "Elon Ventures Support",
+  "short_name": "Support",
+  "start_url": "/admin-support",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
